@@ -47,9 +47,36 @@ const findMaxHeightSlide = slides => {
   return maxHeight;
 };
 
-export const getSlideHeight = (props, state, childNodes = []) => {
-  const { heightMode, vertical, initialSlideHeight } = props;
+const getCurrentSlideHeight = (state, { wrapAround }, childNodes) => {
   const { slidesToShow, currentSlide } = state;
+
+  console.log('currentSlide', currentSlide);
+  if (slidesToShow > 1 && !wrapAround) {
+    let maxHeight = 0;
+    let i;
+    for (i = currentSlide; i < currentSlide + slidesToShow; i++) {
+      if (childNodes[i].offsetHeight > maxHeight) {
+        maxHeight = childNodes[i].offsetHeight;
+      }
+    }
+    return maxHeight;
+  } else if (slidesToShow > 1 && wrapAround) {
+    //handle wraparound
+    let maxHeight = 0;
+    let i;
+    for (i = currentSlide; i < currentSlide + slidesToShow; i++) {
+      if (childNodes[i].offsetHeight > maxHeight) {
+        maxHeight = childNodes[i].offsetHeight;
+      }
+    }
+    return maxHeight;
+  }
+  return childNodes[currentSlide].offsetHeight;
+};
+
+export const getSlideHeight = (props, state, childNodes = []) => {
+  const { heightMode, vertical, initialSlideHeight, wrapAround } = props;
+  const { slidesToShow } = state;
   const firstSlide = childNodes[0];
 
   if (firstSlide && heightMode === 'first') {
@@ -61,7 +88,7 @@ export const getSlideHeight = (props, state, childNodes = []) => {
     return findMaxHeightSlide(childNodes);
   }
   if (heightMode === 'current') {
-    return childNodes[currentSlide].offsetHeight;
+    getCurrentSlideHeight(state, wrapAround, childNodes);
   }
   return initialSlideHeight || 100;
 };

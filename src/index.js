@@ -10,17 +10,17 @@ import AnnounceSlide, {
 } from './announce-slide';
 import {
   addEvent,
-  removeEvent,
+  calcSomeInitialState,
   getPropsByTransitionMode,
-  swipeDirection,
+  removeEvent,
   shouldUpdate,
-  calcSomeInitialState
+  swipeDirection
 } from './utilities/utilities';
 import {
-  getImgTagStyles,
   getDecoratorStyles,
-  getSliderStyles,
   getFrameStyles,
+  getImgTagStyles,
+  getSliderStyles,
   getTransitionProps
 } from './utilities/style-utilities';
 import {
@@ -66,6 +66,9 @@ export default class Carousel extends React.Component {
 
     this.autoplayIterator = this.autoplayIterator.bind(this);
     this.calcSlideHeightAndWidth = this.calcSlideHeightAndWidth.bind(this);
+    this.establishChildNodesMutationObserver = this.establishChildNodesMutationObserver.bind(
+      this
+    );
     this.getChildNodes = this.getChildNodes.bind(this);
     this.getMouseEvents = this.getMouseEvents.bind(this);
     this.getOffsetDeltas = this.getOffsetDeltas.bind(this);
@@ -89,9 +92,6 @@ export default class Carousel extends React.Component {
     this.setSlideHeightAndWidth = this.setSlideHeightAndWidth.bind(this);
     this.startAutoplay = this.startAutoplay.bind(this);
     this.stopAutoplay = this.stopAutoplay.bind(this);
-    this.establishChildNodesMutationObserver = this.establishChildNodesMutationObserver.bind(
-      this
-    );
   }
 
   componentDidMount() {
@@ -168,9 +168,8 @@ export default class Carousel extends React.Component {
       if (image) {
         image.addEventListener('load', this.setSlideHeightAndWidth);
         image.removeEventListener('load', this.setSlideHeightAndWidth);
-      } else {
-        this.setSlideHeightAndWidth();
       }
+      this.setSlideHeightAndWidth();
     }
   }
 
@@ -1080,12 +1079,12 @@ Carousel.propTypes = {
   beforeSlide: PropTypes.func,
   cellAlign: PropTypes.oneOf(['left', 'center', 'right']),
   cellSpacing: PropTypes.number,
-  enableKeyboardControls: PropTypes.bool,
   disableAnimation: PropTypes.bool,
   disableEdgeSwiping: PropTypes.bool,
   dragging: PropTypes.bool,
   easing: PropTypes.string,
   edgeEasing: PropTypes.string,
+  enableKeyboardControls: PropTypes.bool,
   frameOverflow: PropTypes.string,
   framePadding: PropTypes.string,
   height: PropTypes.string,
@@ -1094,6 +1093,7 @@ Carousel.propTypes = {
   initialSlideWidth: PropTypes.number,
   onDragStart: PropTypes.func,
   onResize: PropTypes.func,
+  opacityScale: PropTypes.number,
   pauseOnHover: PropTypes.bool,
   renderAnnounceSlideMessage: PropTypes.func,
   renderBottomCenterControls: PropTypes.func,
@@ -1106,6 +1106,7 @@ Carousel.propTypes = {
   renderTopLeftControls: PropTypes.func,
   renderTopRightControls: PropTypes.func,
   slideIndex: PropTypes.number,
+  slideListMargin: PropTypes.number,
   slideOffset: PropTypes.number,
   slidesToScroll: PropTypes.oneOfType([
     PropTypes.number,
@@ -1119,9 +1120,7 @@ Carousel.propTypes = {
   vertical: PropTypes.bool,
   width: PropTypes.string,
   withoutControls: PropTypes.bool,
-  wrapAround: PropTypes.bool,
-  opacityScale: PropTypes.number,
-  slideListMargin: PropTypes.number
+  wrapAround: PropTypes.bool
 };
 
 Carousel.defaultProps = {
@@ -1133,12 +1132,12 @@ Carousel.defaultProps = {
   beforeSlide() {},
   cellAlign: 'left',
   cellSpacing: 0,
-  enableKeyboardControls: false,
   disableAnimation: false,
   disableEdgeSwiping: false,
   dragging: true,
   easing: 'easeCircleOut',
   edgeEasing: 'easeElasticOut',
+  enableKeyboardControls: false,
   frameOverflow: 'hidden',
   framePadding: '0px',
   height: 'auto',
@@ -1150,6 +1149,7 @@ Carousel.defaultProps = {
   renderCenterLeftControls: props => <PreviousButton {...props} />,
   renderCenterRightControls: props => <NextButton {...props} />,
   slideIndex: 0,
+  slideListMargin: 10,
   slideOffset: 25,
   slidesToScroll: 1,
   slidesToShow: 1,
@@ -1161,8 +1161,7 @@ Carousel.defaultProps = {
   vertical: false,
   width: '100%',
   withoutControls: false,
-  wrapAround: false,
-  slideListMargin: 10
+  wrapAround: false
 };
 
 export { NextButton, PreviousButton, PagingDots };

@@ -171,6 +171,36 @@ describe('<Carousel />', () => {
       expect(wrapper).toHaveState({ slideHeight: 300 });
     });
 
+    it('should set slideHeight to max value of all currently shown slides when slidesToShow is more than 1', () => {
+      const firstSlideNode = document.createElement('div');
+      const secondSlideNode = document.createElement('div');
+      const thirdSlideNode = document.createElement('div');
+      Object.defineProperties(firstSlideNode, {
+        offsetHeight: { value: 100 },
+        style: {}
+      });
+      Object.defineProperties(secondSlideNode, {
+        offsetHeight: { value: 200 },
+        style: {}
+      });
+      Object.defineProperties(thirdSlideNode, {
+        offsetHeight: { value: 300 },
+        style: {}
+      });
+      jest
+        .spyOn(Carousel.prototype, 'getChildNodes')
+        .mockReturnValue([firstSlideNode, secondSlideNode, thirdSlideNode]);
+      const wrapper = mount(
+        <Carousel slidesToShow={3}>
+          <div style={{ height: '100px' }}>Slide 1</div>
+          <div style={{ height: '200px' }}>Slide 2</div>
+          <div style={{ height: '300px' }}>Slide 3</div>
+        </Carousel>
+      );
+      Carousel.prototype.getChildNodes.mockRestore();
+      expect(wrapper).toHaveState({ slideHeight: 300 });
+    });
+
     it('should render with right height when supplied an initialSlideHeight prop.', () => {
       const wrapper = render(
         <Carousel initialSlideHeight={64} slidesToShow={2}>

@@ -8,17 +8,17 @@ class App extends React.Component {
   constructor() {
     super(...arguments);
     this.state = {
-      slideIndex: 0,
-      length: 6,
-      wrapAround: false,
       animation: undefined,
-      underlineHeader: false,
-      zoomScale: 0.5,
-      slidesToShow: 1,
       cellAlign: 'left',
+      heightMode: 'current',
+      length: 6,
+      slideIndex: 0,
+      slidesToShow: 3,
       transitionMode: 'scroll',
-      heightMode: 'max',
-      withoutControls: false
+      underlineHeader: false,
+      withoutControls: false,
+      wrapAround: false,
+      zoomScale: 0.5
     };
 
     this.handleImageClick = this.handleImageClick.bind(this);
