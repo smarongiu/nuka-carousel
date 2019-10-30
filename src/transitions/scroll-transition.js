@@ -24,6 +24,24 @@ export default class ScrollTransition extends React.Component {
     return direction;
   }
 
+  getDistance(index, referenceIndex) {
+    return Math.abs(index - referenceIndex);
+  }
+
+  getDistanceToCurrentSlide(index) {
+    return this.props.wrapAround
+      ? Math.min(
+          Math.min(
+            this.getDistance(index, 0) +
+              this.getDistance(this.props.currentSlide, this.props.slideCount),
+            this.getDistance(index, this.props.slideCount) +
+              this.getDistance(this.props.currentSlide, 0)
+          ),
+          this.getDistance(index, this.props.currentSlide)
+        )
+      : this.getDistance(index, this.props.currentSlide);
+  }
+
   /* eslint-disable complexity */
   getSlideTargetPosition(index, positionValue) {
     let targetPosition =
@@ -103,6 +121,18 @@ export default class ScrollTransition extends React.Component {
     });
   }
 
+  getOpacityScale(index) {
+    return this.props.currentSlide !== index
+      ? Math.max(
+          Math.min(
+            this.props.opacityScale ** this.getDistanceToCurrentSlide(index),
+            MAX_ZOOM_SCALE
+          ),
+          MIN_ZOOM_SCALE
+        )
+      : 1.0;
+  }
+
   getSlideStyles(index, positionValue) {
     const targetPosition = this.getSlideTargetPosition(index, positionValue);
     const transformScale =
@@ -126,9 +156,10 @@ export default class ScrollTransition extends React.Component {
       position: 'absolute',
       top: this.props.vertical ? targetPosition : 0,
       transform: `scale(${transformScale})`,
-      transition: 'transform .4s linear',
+      transition: 'transform .4s linear, opacity .4s linear',
       verticalAlign: 'top',
-      width: this.props.vertical ? '100%' : this.props.slideWidth
+      width: this.props.vertical ? '100%' : this.props.slideWidth,
+      opacity: this.getOpacityScale(index)
     };
   }
 
@@ -193,7 +224,8 @@ ScrollTransition.propTypes = {
   top: PropTypes.number,
   vertical: PropTypes.bool,
   wrapAround: PropTypes.bool,
-  zoomScale: PropTypes.number
+  zoomScale: PropTypes.number,
+  opacityScale: PropTypes.number
 };
 
 ScrollTransition.defaultProps = {
@@ -210,5 +242,6 @@ ScrollTransition.defaultProps = {
   top: 0,
   vertical: false,
   wrapAround: false,
-  zoomScale: 0.85
+  zoomScale: 0.85,
+  opacityScale: 1.0
 };
